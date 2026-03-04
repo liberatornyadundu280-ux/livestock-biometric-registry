@@ -33,12 +33,15 @@ def get_embedding(image_path):
     image = transform(image).unsqueeze(0).to(device)
 
     with torch.no_grad():
-        embedding = embedding_model(image)
+        features = embedding_model(image)  # shape: [1, 1280, 7, 7]
 
-    embedding = embedding.view(embedding.size(0), -1)
-    embedding = F.normalize(embedding, p=2, dim=1)
+        # Global Average Pooling
+        features = torch.mean(features, dim=[2, 3])  # shape: [1, 1280]
 
-    return embedding
+        # L2 normalization
+        features = F.normalize(features, p=2, dim=1)
+
+    return features.squeeze().cpu().numpy()  # shape: (1280,)
 
 
 def get_embedding_list(image_path):
