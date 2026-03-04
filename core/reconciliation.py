@@ -41,7 +41,9 @@ def generate_registry_report():
 
     return {
         "db_records": db_records,
+        "db_embedding_vectors": db_vectors,
         "db_vectors": db_vectors,
+        "faiss_embedding_vectors": faiss_vectors,
         "faiss_vectors": faiss_vectors,
         "count_mismatch": db_vectors != faiss_vectors,
         "duplicate_livestock_ids": duplicate_ids,

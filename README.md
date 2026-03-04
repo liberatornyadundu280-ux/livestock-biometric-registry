@@ -75,6 +75,26 @@ Repair FAISS from MongoDB:
 python scripts/reconcile_registry.py --repair
 ```
 
+## Cleanup / Reset
+
+Clean livestock only (keep farmer accounts):
+
+```bash
+python cleanup.py
+```
+
+Clean everything (livestock + farmers):
+
+```bash
+python cleanup.py --all
+```
+
+After cleanup, rebuild/verify FAISS alignment:
+
+```bash
+python scripts/reconcile_registry.py --repair
+```
+
 ## Documentation
 
 See [docs/README.md](docs/README.md) for documentation index and evaluator-facing guide.
