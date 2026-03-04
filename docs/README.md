@@ -1,9 +1,25 @@
 # Documentation Index
 
-This folder contains structured documentation for the Livestock Biometric Registry MVP.
+This folder contains evaluator-facing and development documentation for the Livestock Biometric Registry MVP.
 
-- PROJECT_OVERVIEW.md – High-level system description.
-- SYSTEM_ARCHITECTURE.md – Technical architecture and design.
-- PROJECT_DOCUMENTATION.md – SDLC-based consolidated documentation.
-- FUTURE_IMPLEMENTATION.md – Roadmap for system evolution.
-- THURSDAY_PRESENTATION.md – Demonstration and defense preparation.
+## Core Documents
+
+- `PROJECT_OVERVIEW.md` - High-level project goals and problem statement.
+- `SYSTEM_ARCHITECTURE.md` - Layered architecture and data model.
+- `PROJECT_DOCUMENTATION.md` - SDLC-oriented technical documentation.
+- `FUTURE_IMPLEMENTATION_PLAN.md` - Post-MVP roadmap.
+- `AGENTS.md` - Build/refactor guidance and stage goals.
+- `STAGE1_EXECUTION_CHECKLIST.md` - Backend hardening checklist and run commands.
+
+## Presentation
+
+- `THURSDAY_PRESENTATION_STRATEGY.md` - Practical presentation script and flow.
+- `EVALUATOR_BRIEF.md` - One-page evaluator handout and checklist.
+
+## Recommended Reading Order for Evaluators
+
+1. `PROJECT_OVERVIEW.md`
+2. `SYSTEM_ARCHITECTURE.md`
+3. `EVALUATOR_BRIEF.md`
+4. `THURSDAY_PRESENTATION_STRATEGY.md`
+5. `STAGE1_EXECUTION_CHECKLIST.md`

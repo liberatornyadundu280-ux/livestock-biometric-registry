@@ -1,5 +1,6 @@
 import numpy as np
 
+from core.config import get_match_threshold
 from core.vector_index import search_embedding
 from core.database import get_farmer_by_id, get_farmer_livestock, get_livestock_by_id
 from core.embedding import get_embedding_list
@@ -49,7 +50,9 @@ def _record_embeddings(record):
 # Duplicate Detection (Registration)
 # ---------------------------------
 
-def check_duplicate(embedding, threshold=0.78):
+def check_duplicate(embedding, threshold=None):
+    if threshold is None:
+        threshold = get_match_threshold()
 
     embedding = np.array(embedding, dtype=np.float32)
 
@@ -105,7 +108,9 @@ def check_duplicate(embedding, threshold=0.78):
 # Global Verification (Authority)
 # ---------------------------------
 
-def verify_global_livestock(image_path, threshold=0.78):
+def verify_global_livestock(image_path, threshold=None):
+    if threshold is None:
+        threshold = get_match_threshold()
     validation = validate_biometric_input(image_path)
     if not validation["valid"]:
         return {
@@ -176,7 +181,9 @@ def verify_global_livestock(image_path, threshold=0.78):
 # Farmer Scoped Verification
 # ---------------------------------
 
-def verify_farmer_livestock(image_path, owner_id, threshold=0.78):
+def verify_farmer_livestock(image_path, owner_id, threshold=None):
+    if threshold is None:
+        threshold = get_match_threshold()
     validation = validate_biometric_input(image_path)
     if not validation["valid"]:
         return {

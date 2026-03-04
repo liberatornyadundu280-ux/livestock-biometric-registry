@@ -25,10 +25,19 @@ This checklist operationalizes `docs/AGENTS.md` Stage 1 goals for the current co
   - `test_global_verification_returns_owner`
   - `test_faiss_index_updates_after_add`
 
+- File: `tests/test_stage1_integration.py` (real MongoDB integration)
+- Integration tests included:
+  - `test_register_transaction_writes_db_and_faiss`
+  - `test_append_gallery_reflects_in_rebuild`
+  - `test_transaction_rolls_back_on_faiss_failure`
+
 ## Run Commands
 
 ```bash
 python -m unittest tests.test_stage1_backend -v
+python -m unittest tests.test_stage1_integration -v
+python scripts/reconcile_registry.py
+python scripts/reconcile_registry.py --repair
 ```
 
 Optional broader sanity check:
@@ -49,6 +58,4 @@ python -m compileall -q app.py core gui
 
 ## Next Stage 1 Hardening Tasks
 
-1. Add integration tests against a real Mongo test database (not only mocked unit tests).
-2. Add a reconciliation utility for rare out-of-band DB/FAISS drift recovery.
-3. Move duplicate policy thresholds to centralized config/env.
+1. Stage 1 hardening complete. Next move: Stage 2 API migration.

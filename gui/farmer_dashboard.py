@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 
+from core.config import get_match_threshold
 from core.database import get_farmer_livestock
 from core.verifier import verify_farmer_livestock, verify_global_livestock
 
@@ -54,7 +55,7 @@ class FarmerDashboard(tk.Frame):
             orient="horizontal",
             length=300
         )
-        self.threshold_slider.set(0.7)
+        self.threshold_slider.set(get_match_threshold())
         self.threshold_slider.pack(pady=5)
 
         tk.Button(
@@ -164,7 +165,10 @@ class FarmerDashboard(tk.Frame):
             self.global_result_label.config(text="Select image first", fg="red")
             return
 
-        result = verify_global_livestock(self.global_search_image_path, threshold=0.78)
+        result = verify_global_livestock(
+            self.global_search_image_path,
+            threshold=get_match_threshold()
+        )
         if result["status"] == "INVALID_INPUT":
             self.global_result_label.config(
                 text=f"INVALID IMAGE\nReason: {result['reason']}",

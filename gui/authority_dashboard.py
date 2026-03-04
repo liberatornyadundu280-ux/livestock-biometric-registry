@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 
 from core.embedding import get_embedding_list
+from core.config import get_match_threshold
 from core.id_generator import generate_livestock_id
 from core.input_validator import validate_biometric_input
 from core.verifier import check_duplicate, verify_global_livestock
@@ -204,7 +205,8 @@ class AuthorityDashboard(tk.Frame):
 
         embedding = get_embedding_list(self.selected_image_path)
 
-        duplicate_check = check_duplicate(embedding)
+        threshold = get_match_threshold()
+        duplicate_check = check_duplicate(embedding, threshold=threshold)
 
         if duplicate_check["duplicate"]:
             existing_id = duplicate_check["existing_id"]
@@ -289,7 +291,7 @@ class AuthorityDashboard(tk.Frame):
             self.search_result_label.config(text="Select image first", fg="red")
             return
 
-        result = verify_global_livestock(self.search_image_path, threshold=0.78)
+        result = verify_global_livestock(self.search_image_path, threshold=get_match_threshold())
 
         if result["status"] == "INVALID_INPUT":
             self.search_result_label.config(
