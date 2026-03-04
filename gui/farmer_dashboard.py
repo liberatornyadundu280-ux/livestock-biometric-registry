@@ -1,7 +1,8 @@
 import tkinter as tk
-from tkinter import filedialog
-from core.verifier import verify_livestock
-from database.db_handler import get_livestock_by_owner
+from tkinter import filedialog, messagebox
+
+from core.database import get_farmer_livestock
+from core.verifier import verify_farmer_livestock, verify_global_livestock
 
 
 class FarmerDashboard(tk.Frame):
@@ -10,6 +11,7 @@ class FarmerDashboard(tk.Frame):
 
         self.controller = controller
         self.selected_image_path = None
+        self.global_search_image_path = None
 
         tk.Label(
             self,
@@ -43,7 +45,6 @@ class FarmerDashboard(tk.Frame):
             command=self.select_image
         ).pack(pady=5)
 
-        # Threshold slider
         tk.Label(self, text="Verification Threshold:", bg="#f4f6f9").pack()
         self.threshold_slider = tk.Scale(
             self,
@@ -67,15 +68,43 @@ class FarmerDashboard(tk.Frame):
         self.result_label = tk.Label(self, text="", bg="#f4f6f9")
         self.result_label.pack(pady=10)
 
+        # --- Global Availability Search ---
+        tk.Label(
+            self,
+            text="Check Availability in Full Registry",
+            font=("Arial", 14, "bold"),
+            bg="#f4f6f9"
+        ).pack(pady=10)
+
+        tk.Button(
+            self,
+            text="Select Image for Global Search",
+            command=self.select_global_search_image
+        ).pack(pady=5)
+
+        tk.Button(
+            self,
+            text="Search Full Registry",
+            bg="#8e44ad",
+            fg="white",
+            command=self.search_global_registry
+        ).pack(pady=5)
+
+        self.global_result_label = tk.Label(self, text="", bg="#f4f6f9")
+        self.global_result_label.pack(pady=10)
+
+        tk.Button(
+            self,
+            text="Back to Landing",
+            command=self.back_to_landing
+        ).pack(pady=5)
+
         tk.Button(
             self,
             text="Logout",
             command=self.logout
-        ).pack(pady=10)
+        ).pack(pady=5)
 
-    # ------------------------------
-    # Load farmer livestock
-    # ------------------------------
     def load_livestock(self):
         self.livestock_listbox.delete(0, tk.END)
 
@@ -83,7 +112,7 @@ class FarmerDashboard(tk.Frame):
         if not farmer:
             return
 
-        livestock = get_livestock_by_owner(farmer["farmer_id"])
+        livestock = get_farmer_livestock(farmer["farmer_id"])
 
         for record in livestock:
             self.livestock_listbox.insert(
@@ -91,50 +120,86 @@ class FarmerDashboard(tk.Frame):
                 f"{record['livestock_id']} ({record['livestock_type']})"
             )
 
-    # ------------------------------
-    # Image selection
-    # ------------------------------
     def select_image(self):
         self.selected_image_path = filedialog.askopenfilename()
 
-    # ------------------------------
-    # Verification
-    # ------------------------------
+    def select_global_search_image(self):
+        self.global_search_image_path = filedialog.askopenfilename()
+
     def verify(self):
         if not self.selected_image_path:
             self.result_label.config(text="Please select an image", fg="red")
             return
 
         threshold = self.threshold_slider.get()
-
         farmer = self.controller.current_user
 
-        result = verify_livestock(
-            self.selected_image_path,
-            threshold,
-            farmer["farmer_id"]
-        )
-        if result["status"] == "VERIFIED":
+        result = verify_farmer_livestock(self.selected_image_path, farmer["farmer_id"], threshold)
+        if result["status"] == "INVALID_INPUT":
             self.result_label.config(
-                text=f"VERIFIED\n"
+                text=f"INVALID IMAGE\nReason: {result['reason']}",
+                fg="red"
+            )
+            return
+
+        if result["status"] == "FOUND":
+            self.result_label.config(
+                text=f"FOUND\n"
                      f"ID: {result['livestock_id']}\n"
-                     f"Owner: {result['owner_name']}\n"
-                     f"Similarity: {result['similarity']:.4f}",
+                     f"Similarity: {result['similarity']:.4f}\n"
+                     f"Confidence: {result.get('confidence', 'N/A')}",
                 fg="green"
             )
         else:
             self.result_label.config(
-                text=f"NOT VERIFIED\nSimilarity: {result['similarity']:.4f}",
+                text=f"NOT FOUND\n"
+                     f"Similarity: {result['similarity']:.4f}\n"
+                     f"Confidence: {result.get('confidence', 'N/A')}",
                 fg="red"
             )
+            messagebox.showinfo("Not Found", "No matching livestock found in your registered records.")
 
-    # ------------------------------
+    def search_global_registry(self):
+        if not self.global_search_image_path:
+            self.global_result_label.config(text="Select image first", fg="red")
+            return
+
+        result = verify_global_livestock(self.global_search_image_path, threshold=0.78)
+        if result["status"] == "INVALID_INPUT":
+            self.global_result_label.config(
+                text=f"INVALID IMAGE\nReason: {result['reason']}",
+                fg="red"
+            )
+            return
+
+        if result["status"] == "FOUND":
+            self.global_result_label.config(
+                text=f"FOUND IN REGISTRY\n"
+                     f"ID: {result['livestock_id']}\n"
+                     f"Owner: {result['owner_name']}\n"
+                     f"Similarity: {result['similarity']:.4f}\n"
+                     f"Confidence: {result.get('confidence', 'N/A')}",
+                fg="green"
+            )
+        else:
+            self.global_result_label.config(
+                text=f"NOT FOUND IN REGISTRY\n"
+                     f"Similarity: {result['similarity']:.4f}\n"
+                     f"Confidence: {result.get('confidence', 'N/A')}",
+                fg="red"
+            )
+            messagebox.showinfo("Not Found", "This livestock image is not found in the system registry.")
+
     def logout(self):
         self.controller.current_user = None
         self.controller.show_frame_by_name("LandingPage")
 
-    # ------------------------------
+    def back_to_landing(self):
+        self.logout()
+
     def reset(self):
         self.load_livestock()
         self.result_label.config(text="")
+        self.global_result_label.config(text="")
         self.selected_image_path = None
+        self.global_search_image_path = None

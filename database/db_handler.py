@@ -62,3 +62,12 @@ def get_all_livestock():
 def get_livestock_by_owner(owner_id):
     db = load_database()
     return [ls for ls in db["livestock"] if ls["owner_id"] == owner_id]
+
+def get_livestock_by_id(livestock_id):
+    """
+    Retrieve a livestock record by ID
+    """
+
+    record = livestock_collection.find_one({"livestock_id": livestock_id})
+
+    return record
